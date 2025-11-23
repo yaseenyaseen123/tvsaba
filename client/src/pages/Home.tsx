@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import HLS from "hls.js";
+import { useState } from "react";
 import { APP_LOGO } from "@/const";
 import { CHANNELS, Channel } from "@/lib/channels";
 import { Play, Volume2, Clock, Zap } from "lucide-react";
@@ -9,61 +8,8 @@ export default function Home() {
     CHANNELS[1] // اختر sabaTV 2 افتراضيًا
   );
   const [isPlaying, setIsPlaying] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<HLS | null>(null);
 
-  // Initialize HLS player
-  useEffect(() => {
-    if (!videoRef.current || !selectedChannel?.streamUrl) return;
 
-    const video = videoRef.current;
-
-    // Clean up previous HLS instance
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    // Check if HLS is supported
-    if (HLS.isSupported()) {
-      const hls = new HLS({
-        debug: false,
-        enableWorker: true,
-        lowLatencyMode: true,
-      });
-      hlsRef.current = hls;
-
-      hls.loadSource(selectedChannel.streamUrl);
-      hls.attachMedia(video);
-
-      hls.on(HLS.Events.MANIFEST_PARSED, () => {
-        if (isPlaying) {
-          video.play().catch(() => {
-            // Autoplay might be blocked by browser
-          });
-        }
-      });
-
-      hls.on(HLS.Events.ERROR, (event, data) => {
-        console.error("HLS Error:", data);
-      });
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      // For Safari native HLS support
-      video.src = selectedChannel.streamUrl;
-      if (isPlaying) {
-        video.play().catch(() => {
-          // Autoplay might be blocked by browser
-        });
-      }
-    }
-
-    return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-    };
-  }, [selectedChannel, isPlaying]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
@@ -123,14 +69,26 @@ export default function Home() {
           <div className="lg:col-span-2">
             <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-green-700">
               {selectedChannel && selectedChannel.streamUrl ? (
-                <div className="aspect-video bg-black relative">
-                  <video
-                    ref={videoRef}
-                    controls
-                    className="w-full h-full"
-                    controlsList="nodownload"
-                    playsInline
+                <div className="aspect-video bg-black relative flex flex-col items-center justify-center">
+                  <iframe
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
+                    }}
+                    allowFullScreen
+                    src="http://62.171.186.42:8080/monw3at/embed.html"
+                    title="sabaTV Player"
                   />
+                  <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+                  <button
+                    onClick={() => window.open("http://62.171.186.42:8080/monw3at/embed.html", "_blank", "width=800,height=600")}
+                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 shadow-lg"
+                  >
+                    <Play className="w-4 h-4" />
+                    فتح البث
+                  </button>
+                  </div>
                 </div>
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
