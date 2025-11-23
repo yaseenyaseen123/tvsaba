@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import HLS from "hls.js";
 import { APP_LOGO } from "@/const";
 import { CHANNELS, Channel } from "@/lib/channels";
 import { Play, Volume2, Clock, Zap } from "lucide-react";
@@ -8,6 +9,61 @@ export default function Home() {
     CHANNELS[1] // اختر sabaTV 2 افتراضيًا
   );
   const [isPlaying, setIsPlaying] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<HLS | null>(null);
+
+  // Initialize HLS player
+  useEffect(() => {
+    if (!videoRef.current || !selectedChannel?.streamUrl) return;
+
+    const video = videoRef.current;
+
+    // Clean up previous HLS instance
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+
+    // Check if HLS is supported
+    if (HLS.isSupported()) {
+      const hls = new HLS({
+        debug: false,
+        enableWorker: true,
+        lowLatencyMode: true,
+      });
+      hlsRef.current = hls;
+
+      hls.loadSource(selectedChannel.streamUrl);
+      hls.attachMedia(video);
+
+      hls.on(HLS.Events.MANIFEST_PARSED, () => {
+        if (isPlaying) {
+          video.play().catch(() => {
+            // Autoplay might be blocked by browser
+          });
+        }
+      });
+
+      hls.on(HLS.Events.ERROR, (event, data) => {
+        console.error("HLS Error:", data);
+      });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      // For Safari native HLS support
+      video.src = selectedChannel.streamUrl;
+      if (isPlaying) {
+        video.play().catch(() => {
+          // Autoplay might be blocked by browser
+        });
+      }
+    }
+
+    return () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+    };
+  }, [selectedChannel, isPlaying]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
@@ -69,15 +125,12 @@ export default function Home() {
               {selectedChannel && selectedChannel.streamUrl ? (
                 <div className="aspect-video bg-black relative">
                   <video
-                    key={selectedChannel.id}
+                    ref={videoRef}
                     controls
-                    autoPlay
                     className="w-full h-full"
                     controlsList="nodownload"
-                  >
-                    <source src={selectedChannel.streamUrl} type="application/x-mpegURL" />
-                    متصفحك لا يدعم تشغيل الفيديو. يرجى استخدام متصفح حديث.
-                  </video>
+                    playsInline
+                  />
                 </div>
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
@@ -124,12 +177,12 @@ export default function Home() {
                       setSelectedChannel(channel);
                       setIsPlaying(true);
                     }}
+                    disabled={!channel.streamUrl}
                     className={`w-full p-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
                       selectedChannel?.id === channel.id
                         ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg border-2 border-green-400"
                         : "bg-slate-700 text-gray-300 hover:bg-slate-600 border-2 border-slate-600"
                     }`}
-                    disabled={!channel.streamUrl}
                   >
                     <div className="flex items-center justify-between">
                       <span>{channel.displayName}</span>
