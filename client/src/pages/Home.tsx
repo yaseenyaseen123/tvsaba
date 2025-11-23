@@ -1,220 +1,246 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { APP_LOGO, APP_TITLE } from "@/const";
 import { useState } from "react";
-import { Play, Tv, Film, Trophy } from "lucide-react";
+import { APP_LOGO } from "@/const";
+import { CHANNELS, Channel } from "@/lib/channels";
+import { Play, Volume2, Clock, Zap } from "lucide-react";
 
 export default function Home() {
-  const [channel1Url, setChannel1Url] = useState("");
-  const [channel2Url, setChannel2Url] = useState("");
-  const [activeChannel, setActiveChannel] = useState<1 | 2>(1);
-
-  const currentStreamUrl = activeChannel === 1 ? channel1Url : channel2Url;
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(
+    CHANNELS[1] // اختر sabaTV 2 افتراضيًا
+  );
+  const [isPlaying, setIsPlaying] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
-      {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={APP_LOGO} alt={APP_TITLE} className="h-12 w-auto" />
-            <div>
-              <h1 className="text-2xl font-bold text-primary">sabaTV</h1>
-              <p className="text-xs text-muted-foreground">قناة البث المباشر الفلسطينية</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      {/* Header with Palestinian theme */}
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-green-700 via-black to-red-700 shadow-2xl border-b-4 border-white">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img src={APP_LOGO} alt="sabaTV" className="h-14 w-auto drop-shadow-lg" />
+              <div>
+                <h1 className="text-3xl font-black text-white drop-shadow-lg">sabaTV</h1>
+                <p className="text-sm text-green-200 font-semibold">📍 من قلقيلية إلى العالم</p>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center gap-6 text-white">
+              <a href="#about" className="hover:text-green-300 transition font-semibold">
+                عن sabaTV
+              </a>
+              <a href="#content" className="hover:text-green-300 transition font-semibold">
+                المحتوى
+              </a>
             </div>
           </div>
-          <nav className="hidden md:flex gap-6">
-            <a href="#channels" className="text-foreground hover:text-primary transition">
-              القنوات
-            </a>
-            <a href="#content" className="text-foreground hover:text-primary transition">
-              المحتوى
-            </a>
-            <a href="#about" className="text-foreground hover:text-primary transition">
-              عننا
-            </a>
-          </nav>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-accent py-12 text-white">
-        <div className="container text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">مرحبا بك في sabaTV</h2>
-          <p className="text-lg md:text-xl mb-6 opacity-90">
-            قناة فلسطينية 100% تبث من قلقيلية إلى كل مكان
-          </p>
-          <p className="text-base md:text-lg opacity-80">
-            تابع أفضل المباريات والمسلسلات والأفلام العربية والعالمية
-          </p>
+      {/* Hero Section with Palestinian colors */}
+      <section className="relative overflow-hidden py-12 bg-gradient-to-b from-green-900/30 to-transparent">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-green-500 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-500 rounded-full blur-3xl"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <h2 className="text-5xl md:text-6xl font-black text-white mb-4 drop-shadow-lg">
+            sabaTV
+          </h2>
+          <p className="text-2xl text-green-200 font-bold mb-2">قناة فلسطينية 100%</p>
+          <p className="text-lg text-gray-300 mb-6">تبث من قلقيلية إلى كل مكان في العالم</p>
+          <div className="flex justify-center gap-4 flex-wrap">
+            <div className="bg-green-700/50 backdrop-blur px-6 py-3 rounded-full text-white font-semibold">
+              🎬 محتوى متنوع
+            </div>
+            <div className="bg-red-700/50 backdrop-blur px-6 py-3 rounded-full text-white font-semibold">
+              ⚽ مباريات حية
+            </div>
+            <div className="bg-black/50 backdrop-blur px-6 py-3 rounded-full text-white font-semibold">
+              🌍 بث عالمي
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Player Section */}
-      <section id="channels" className="container py-12">
-        <h3 className="text-3xl font-bold text-center mb-8 text-primary">القنوات المتاحة</h3>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          {/* Channel 1 */}
-          <Card className="p-6 hover:shadow-lg transition">
-            <div className="flex items-center gap-2 mb-4">
-              <Tv className="w-6 h-6 text-primary" />
-              <h4 className="text-2xl font-bold text-primary">sabaTV 1</h4>
+      {/* Main Player Section */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Video Player */}
+          <div className="lg:col-span-2">
+            <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-green-700">
+              {selectedChannel && selectedChannel.streamUrl ? (
+                <div className="aspect-video bg-black relative">
+                  <video
+                    key={selectedChannel.id}
+                    controls
+                    autoPlay
+                    className="w-full h-full"
+                    controlsList="nodownload"
+                  >
+                    <source src={selectedChannel.streamUrl} type="application/x-mpegURL" />
+                    متصفحك لا يدعم تشغيل الفيديو. يرجى استخدام متصفح حديث.
+                  </video>
+                </div>
+              ) : (
+                <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+                  <div className="text-center">
+                    <Volume2 className="w-20 h-20 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-lg">اختر قناة لبدء البث</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                رابط البث:
-              </label>
-              <input
-                type="url"
-                value={channel1Url}
-                onChange={(e) => setChannel1Url(e.target.value)}
-                placeholder="أدخل رابط البث (M3U8 أو HLS)"
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+
+            {/* Channel Info */}
+            {selectedChannel && (
+              <div className="mt-6 bg-gradient-to-r from-green-900/50 to-red-900/50 backdrop-blur rounded-xl p-6 border border-green-700/50">
+                <h3 className="text-2xl font-bold text-white mb-2">{selectedChannel.displayName}</h3>
+                <p className="text-gray-300">{selectedChannel.description}</p>
+                <div className="flex gap-4 mt-4 text-sm text-gray-400">
+                  <span className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-green-400" />
+                    بث مباشر
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-green-400" />
+                    متاح الآن
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Channels Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl p-6 border-2 border-green-700 shadow-2xl">
+              <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Play className="w-5 h-5 text-green-400" />
+                القنوات المتاحة
+              </h4>
+
+              <div className="space-y-4">
+                {CHANNELS.map((channel) => (
+                  <button
+                    key={channel.id}
+                    onClick={() => {
+                      setSelectedChannel(channel);
+                      setIsPlaying(true);
+                    }}
+                    className={`w-full p-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
+                      selectedChannel?.id === channel.id
+                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg border-2 border-green-400"
+                        : "bg-slate-700 text-gray-300 hover:bg-slate-600 border-2 border-slate-600"
+                    }`}
+                    disabled={!channel.streamUrl}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{channel.displayName}</span>
+                      {selectedChannel?.id === channel.id && (
+                        <span className="animate-pulse text-green-300">●</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Channel Status */}
+              <div className="mt-8 p-4 bg-green-900/30 rounded-lg border border-green-700/50">
+                <p className="text-sm text-green-300 font-semibold">✓ القنوات المتاحة</p>
+                <p className="text-xs text-gray-400 mt-2">
+                  جميع القنوات تبث محتوى حي وحصري
+                </p>
+              </div>
             </div>
-            <Button
-              onClick={() => setActiveChannel(1)}
-              variant={activeChannel === 1 ? "default" : "outline"}
-              className="w-full gap-2"
-              disabled={!channel1Url}
-            >
-              <Play className="w-4 h-4" />
-              اختر هذه القناة
-            </Button>
-          </Card>
-
-          {/* Channel 2 */}
-          <Card className="p-6 hover:shadow-lg transition">
-            <div className="flex items-center gap-2 mb-4">
-              <Tv className="w-6 h-6 text-primary" />
-              <h4 className="text-2xl font-bold text-primary">sabaTV 2</h4>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                رابط البث:
-              </label>
-              <input
-                type="url"
-                value={channel2Url}
-                onChange={(e) => setChannel2Url(e.target.value)}
-                placeholder="أدخل رابط البث (M3U8 أو HLS)"
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <Button
-              onClick={() => setActiveChannel(2)}
-              variant={activeChannel === 2 ? "default" : "outline"}
-              className="w-full gap-2"
-              disabled={!channel2Url}
-            >
-              <Play className="w-4 h-4" />
-              اختر هذه القناة
-            </Button>
-          </Card>
-        </div>
-
-        {/* Video Player */}
-        {currentStreamUrl && (
-          <Card className="p-6 bg-black">
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
-              <video
-                key={currentStreamUrl}
-                controls
-                autoPlay
-                className="w-full h-full"
-                controlsList="nodownload"
-              >
-                <source src={currentStreamUrl} type="application/x-mpegURL" />
-                متصفحك لا يدعم تشغيل الفيديو. يرجى استخدام متصفح حديث.
-              </video>
-            </div>
-            <div className="mt-4 text-center text-white">
-              <p className="text-lg font-semibold">
-                تشغيل: {activeChannel === 1 ? "sabaTV 1" : "sabaTV 2"}
-              </p>
-            </div>
-          </Card>
-        )}
-
-        {!currentStreamUrl && (
-          <Card className="p-12 bg-muted text-center">
-            <Tv className="w-16 h-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-            <p className="text-lg text-muted-foreground">
-              أضف رابط بث لأحد القناتين لبدء المشاهدة
-            </p>
-          </Card>
-        )}
-      </section>
-
-      {/* Content Section */}
-      <section id="content" className="bg-secondary py-12">
-        <div className="container">
-          <h3 className="text-3xl font-bold text-center mb-8 text-primary">محتوى القنوات</h3>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Sports */}
-            <Card className="p-6 text-center hover:shadow-lg transition">
-              <Trophy className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h4 className="text-xl font-bold mb-2 text-foreground">المباريات الرياضية</h4>
-              <p className="text-muted-foreground">
-                تابع أهم مباريات الدوريات الكبرى والبطولات العالمية
-              </p>
-            </Card>
-
-            {/* Series */}
-            <Card className="p-6 text-center hover:shadow-lg transition">
-              <Film className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h4 className="text-xl font-bold mb-2 text-foreground">المسلسلات</h4>
-              <p className="text-muted-foreground">
-                مسلسلات قديمة وحديثة بجودة عالية
-              </p>
-            </Card>
-
-            {/* Movies */}
-            <Card className="p-6 text-center hover:shadow-lg transition">
-              <Film className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h4 className="text-xl font-bold mb-2 text-foreground">الأفلام</h4>
-              <p className="text-muted-foreground">
-                أحدث الأفلام العربية والعالمية
-              </p>
-            </Card>
           </div>
         </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="container py-12">
-        <h3 className="text-3xl font-bold text-center mb-8 text-primary">عن sabaTV</h3>
+      <section id="about" className="py-16 bg-gradient-to-b from-transparent to-green-900/20">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-black text-white text-center mb-12 drop-shadow-lg">
+            عن sabaTV
+          </h3>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <Card className="p-6">
-            <h4 className="text-xl font-bold mb-4 text-primary">من نحن</h4>
-            <p className="text-foreground leading-relaxed mb-4">
-              sabaTV هي قناة فلسطينية 100% تبث من مدينة قلقيلية إلى كل مكان في العالم.
-            </p>
-            <p className="text-foreground leading-relaxed">
-              نسعى لتقديم محتوى متنوع وعالي الجودة يلبي احتياجات جمهورنا الكريم.
-            </p>
-          </Card>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Who We Are */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border-l-4 border-green-600 shadow-xl hover:shadow-2xl transition">
+              <h4 className="text-2xl font-bold text-green-400 mb-4">من نحن</h4>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                sabaTV هي قناة فلسطينية حرة وشجاعة تبث من مدينة قلقيلية إلى كل مكان في العالم. نحن نقدم محتوى متنوع وعالي الجودة يعكس الواقع الفلسطيني ويخدم جمهورنا الكريم.
+              </p>
+              <p className="text-gray-300 leading-relaxed">
+                تأسست sabaTV برؤية واضحة: تقديم إعلام حر وموثوق يحدث عن قضايا الشعب الفلسطيني ويجمع الأسرة الفلسطينية حول محتوى متميز.
+              </p>
+            </div>
 
-          <Card className="p-6">
-            <h4 className="text-xl font-bold mb-4 text-primary">رؤيتنا المستقبلية</h4>
-            <p className="text-foreground leading-relaxed mb-4">
-              نتطلع إلى توسع شبكتنا وإضافة قنوات جديدة في المستقبل القريب.
+            {/* Our Content */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border-l-4 border-red-600 shadow-xl hover:shadow-2xl transition">
+              <h4 className="text-2xl font-bold text-red-400 mb-4">محتوانا</h4>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex gap-3">
+                  <span className="text-green-400 font-bold">⚽</span>
+                  <span>مباريات الدوريات الكبرى والبطولات العالمية</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-400 font-bold">🎬</span>
+                  <span>مسلسلات عربية وعالمية قديمة وحديثة</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-400 font-bold">🎥</span>
+                  <span>أحدث الأفلام العربية والعالمية</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-green-400 font-bold">📺</span>
+                  <span>برامج إخبارية وتوثيقية متميزة</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Vision */}
+          <div className="mt-8 bg-gradient-to-r from-green-900/40 to-red-900/40 backdrop-blur rounded-2xl p-8 border-2 border-green-700/50">
+            <h4 className="text-2xl font-bold text-white mb-4 text-center">رؤيتنا المستقبلية</h4>
+            <p className="text-gray-300 text-center leading-relaxed">
+              نتطلع إلى توسع شبكتنا وإضافة قنوات متخصصة جديدة في المستقبل القريب. حالياً نوفر قناتي sabaTV 1 و sabaTV 2 بمحتوى متنوع وشامل، ونسعى لتحسين جودة البث والخدمات المقدمة لجمهورنا الكريم.
             </p>
-            <p className="text-foreground leading-relaxed">
-              حالياً نوفر قناتي sabaTV 1 و sabaTV 2 بمحتوى متنوع وشامل.
-            </p>
-          </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Content Section */}
+      <section id="content" className="py-16 bg-slate-900/50">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-black text-white text-center mb-12 drop-shadow-lg">
+            محتوى sabaTV
+          </h3>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: "⚽", title: "المباريات", desc: "أهم البطولات العالمية" },
+              { icon: "🎬", title: "المسلسلات", desc: "محتوى درامي متميز" },
+              { icon: "🎥", title: "الأفلام", desc: "أحدث الإصدارات" },
+              { icon: "📺", title: "البرامج", desc: "محتوى إخباري وتوثيقي" },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border border-green-700/30 hover:border-green-600 transition text-center hover:shadow-xl"
+              >
+                <div className="text-4xl mb-3">{item.icon}</div>
+                <h5 className="text-lg font-bold text-white mb-2">{item.title}</h5>
+                <p className="text-sm text-gray-400">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-8">
-        <div className="container text-center">
-          <p className="mb-2">© 2025 sabaTV - جميع الحقوق محفوظة</p>
-          <p className="text-sm opacity-80">قناة فلسطينية من قلقيلية</p>
+      <footer className="bg-gradient-to-r from-green-900 via-black to-red-900 border-t-4 border-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-white font-bold mb-2">© 2025 sabaTV - جميع الحقوق محفوظة</p>
+          <p className="text-green-300 text-sm">قناة فلسطينية حرة من قلقيلية 🇵🇸</p>
+          <p className="text-gray-400 text-xs mt-4">
+            sabaTV | البث المباشر الفلسطيني | من قلقيلية إلى العالم
+          </p>
         </div>
       </footer>
     </div>
